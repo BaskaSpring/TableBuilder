@@ -38,6 +38,8 @@ public class User {
     @Size(max = 75)
     private String username;
 
+    private Boolean enabled = false;
+
     @NotBlank
     @Size(max = 50)
     @Email

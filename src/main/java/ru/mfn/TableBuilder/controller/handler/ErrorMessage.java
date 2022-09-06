@@ -1,11 +1,15 @@
 package ru.mfn.TableBuilder.controller.handler;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
-@Value
+@Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class ErrorMessage {
+    String status;
     String message;
-    String stackTrace;
+
 }

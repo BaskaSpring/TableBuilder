@@ -28,10 +28,41 @@ public class ControllerExceptionHandler {
         return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(RefreshTokenNotDatabase.class)
+    public ResponseEntity<ErrorMessage> refreshTokenNotDatabase(RefreshTokenNotDatabase ex) {
+        return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(RefreshTokenExpired.class)
+    public ResponseEntity<ErrorMessage> refreshTokenExpired(RefreshTokenExpired ex) {
+        return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(RefreshTokenRandomError.class)
+    public ResponseEntity<ErrorMessage> refreshTokenRandomError(RefreshTokenRandomError ex) {
+        return commonMessage(ex, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorMessage> userNotFoundException(UserNotFoundException ex) {
+        return commonMessage(ex, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UserNotActiveException.class)
+    public ResponseEntity<ErrorMessage> userNotActiveException(UserNotActiveException ex) {
+        return commonMessage(ex, HttpStatus.LOCKED);
+    }
+
+    @ExceptionHandler(RoleAlreadyExistException.class)
+    public ResponseEntity<ErrorMessage> roleAlreadyExistException(RoleAlreadyExistException ex) {
+        return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
+    }
 
     private ResponseEntity<ErrorMessage> commonMessage(Exception ex, HttpStatus httpStatus) {
-        var message = ex.getMessage();
-        log.error(message, ex);
-        return new ResponseEntity(message,httpStatus);
+        ErrorMessage errorMessage = new ErrorMessage();
+        errorMessage.message = ex.getMessage();
+        errorMessage.status = httpStatus.toString();
+        log.error(errorMessage.getMessage(),ex);
+        return new ResponseEntity(errorMessage,httpStatus);
     }
 }

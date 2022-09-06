@@ -3,25 +3,40 @@ package ru.mfn.TableBuilder.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.mfn.TableBuilder.exception.EmailAlreadyUseException;
-import ru.mfn.TableBuilder.exception.RoleNotFoundException;
+import ru.mfn.TableBuilder.exception.*;
+import ru.mfn.TableBuilder.model.auth.RefreshToken;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.model.auth.User;
+import ru.mfn.TableBuilder.payload.auth.request.LogOutRequest;
+import ru.mfn.TableBuilder.payload.auth.request.LoginRequest;
 import ru.mfn.TableBuilder.payload.auth.request.SignUpRequest;
+import ru.mfn.TableBuilder.payload.auth.request.TokenRefreshRequest;
+import ru.mfn.TableBuilder.payload.auth.response.JwtResponse;
+import ru.mfn.TableBuilder.payload.auth.response.MessageResponse;
+import ru.mfn.TableBuilder.payload.auth.response.TokenRefreshResponse;
 import ru.mfn.TableBuilder.repository.*;
+import ru.mfn.TableBuilder.security.jwt.JwtUtils;
+import ru.mfn.TableBuilder.security.services.RefreshTokenService;
+import ru.mfn.TableBuilder.security.services.UserDetailsImpl;
 import ru.mfn.TableBuilder.service.AuthService;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
+
+    @Autowired
+    AuthenticationManager authenticationManager;
 
     @Autowired
     UserRepository userRepository;
@@ -31,6 +46,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @Autowired
+    JwtUtils jwtUtils;
+
+    @Autowired
+    RefreshTokenService refreshTokenService;
 
     @Override
     @SneakyThrows
@@ -43,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         }
         User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()));
-        Set<String> strRoles = signUpRequest.getRole();
+        Set<String> strRoles = signUpRequest.getRoles();
         Set<Role> roles = new HashSet<>();
 
         List<Role> roleList = roleRepository.findAll();
@@ -69,5 +90,50 @@ public class AuthServiceImpl implements AuthService {
         return "User registered successfully!";
     }
 
+    @Override
+    @SneakyThrows
+    public JwtResponse authenticateUser(LoginRequest loginRequest) {
+        Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername());
+        if (optionalUser.isEmpty()){
+            throw new UserNotFoundException("Error: User not found!");
+        }
+        User user = optionalUser.get();
+        if (!user.getEnabled()){
+            throw new UserNotActiveException("Error: User not active!");
+        }
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        String jwt = jwtUtils.generateJwtToken(userDetails);
+        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
+                .collect(Collectors.toList());
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        return new JwtResponse(jwt, refreshToken.getToken(), userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+    }
 
+    @Override
+    @SneakyThrows
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest tokenRefreshRequest) {
+        TokenRefreshResponse tokenRefreshResponse = new TokenRefreshResponse();
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenService.findByToken(tokenRefreshRequest.getRefreshToken());
+        if (optionalRefreshToken.isEmpty()){
+            throw new RefreshTokenNotDatabase("Error: Refresh token is not find or expired!");
+        }
+        RefreshToken refreshToken = optionalRefreshToken.get();
+        if (!refreshTokenService.verifyExpiration(refreshToken)){
+           throw new RefreshTokenExpired("Error: Refresh token expired!");
+        }
+        tokenRefreshResponse.setAccessToken(jwtUtils.generateTokenFromUsername(refreshToken.getUser().getUsername()));
+        tokenRefreshResponse.setRefreshToken(refreshTokenService.createRefreshToken(refreshToken.getUser().getId()).getToken());
+        return tokenRefreshResponse;
+    }
+
+    @Override
+    public MessageResponse logoutUser(LogOutRequest logOutRequest) {
+        refreshTokenService.deleteByUserId(logOutRequest.getUserId());
+        MessageResponse messageResponse = new MessageResponse();
+        messageResponse.setMessage("Log out successful!");
+        return messageResponse;
+    }
 }

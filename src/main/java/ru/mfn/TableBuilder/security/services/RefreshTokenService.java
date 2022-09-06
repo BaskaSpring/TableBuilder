@@ -1,10 +1,12 @@
 package ru.mfn.TableBuilder.security.services;
 
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.mfn.TableBuilder.exception.RefreshTokenRandomError;
 import ru.mfn.TableBuilder.model.auth.RefreshToken;
 import ru.mfn.TableBuilder.repository.RefreshTokenRepository;
 import ru.mfn.TableBuilder.repository.UserRepository;
@@ -29,23 +31,32 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByToken(token);
     }
 
+    @SneakyThrows
     public RefreshToken createRefreshToken(String userId) {
         RefreshToken refreshToken = new RefreshToken();
-
+        int count=0;
+        String token = "";
+        while (count<20) {
+            token = UUID.randomUUID().toString();
+            Optional<RefreshToken> rt = findByToken(token);
+            if (rt.isEmpty()){
+                break;
+            }
+            count++;
+            if (count>10){
+                throw new RefreshTokenRandomError("Error: Refresh token is not random!");
+            }
+        }
         refreshToken.setUser(userRepository.findById(userId).get());
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
-        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setToken(token);
 
         refreshToken = refreshTokenRepository.save(refreshToken);
         return refreshToken;
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token) {
-        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
-            refreshTokenRepository.delete(token);
-        }
-
-        return token;
+    public Boolean verifyExpiration(RefreshToken token) {
+        return token.getExpiryDate().compareTo(Instant.now()) >= 0;
     }
 
     @Transactional
