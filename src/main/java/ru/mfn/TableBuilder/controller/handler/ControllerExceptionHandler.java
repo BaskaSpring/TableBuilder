@@ -58,6 +58,16 @@ public class ControllerExceptionHandler {
         return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorMessage> accessDeniedException(AccessDeniedException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidNumberIdException.class)
+    public ResponseEntity<ErrorMessage> invalidNumberIdException(InvalidNumberIdException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
     private ResponseEntity<ErrorMessage> commonMessage(Exception ex, HttpStatus httpStatus) {
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.message = ex.getMessage();

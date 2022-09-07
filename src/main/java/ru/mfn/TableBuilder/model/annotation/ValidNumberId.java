@@ -1,7 +1,7 @@
 package ru.mfn.TableBuilder.model.annotation;
 
 
-import ru.mfn.TableBuilder.model.validator.ValidRoleValidator;
+import ru.mfn.TableBuilder.model.validator.ValidNumberIdValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = ValidRoleValidator.class)
-public @interface ValidRoleName {
+@Constraint(validatedBy = ValidNumberIdValidator.class)
+public @interface ValidNumberId {
     String message() default "Invalid field name";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

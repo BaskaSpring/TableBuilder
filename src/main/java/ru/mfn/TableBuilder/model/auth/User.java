@@ -38,7 +38,7 @@ public class User {
     @Size(max = 75)
     private String username;
 
-    private Boolean enabled = false;
+    private Boolean enabled = true;
 
     @NotBlank
     @Size(max = 50)

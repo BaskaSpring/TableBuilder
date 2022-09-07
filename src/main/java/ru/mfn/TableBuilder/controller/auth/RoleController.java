@@ -6,12 +6,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.payload.role.request.AddRoleRequest;
+import ru.mfn.TableBuilder.payload.role.request.DeleteRoleRequest;
+import ru.mfn.TableBuilder.payload.role.request.EditRoleRequest;
+import ru.mfn.TableBuilder.repository.TableRepository;
 import ru.mfn.TableBuilder.service.impl.AccessServiceImpl;
 import ru.mfn.TableBuilder.service.impl.RoleServiceImpl;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.Set;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -25,21 +27,36 @@ public class RoleController {
     @Autowired
     AccessServiceImpl accessService;
 
+    @Autowired
+    TableRepository tableRepository;
+
     @PostMapping("/AddRole")
     public ResponseEntity<?> addRole(Principal principal, @Valid @RequestBody AddRoleRequest addRoleRequest) {
-
-        Set<Role> roles = new HashSet<>();
-
+        Set<Role> roles =tableRepository.findByName("Role").get().getRoles();
         accessService.checkPermission(principal,roles);
-
-        int i = 1;
-
         return ResponseEntity.ok(roleService.addRole(addRoleRequest));
     }
 
 
-//    @PutMapping("/ModifyRole")
-//    public ResponseEntity<?> modifyRole(@Valid @RequestBody ModifyRoleRequest modifyRoleRequest) {
-//        return ResponseEntity.ok(roleService.addRole(addRoleRequest));
-//    }
+    @PutMapping("/EditRole")
+    public ResponseEntity<?> editRole(Principal principal, @RequestBody @Valid EditRoleRequest editRoleRequest) {
+        Set<Role> roles =tableRepository.findByName("Role").get().getRoles();
+        accessService.checkPermission(principal,roles);
+        return ResponseEntity.ok(roleService.editRole(editRoleRequest));
+    }
+
+    @DeleteMapping("/DeleteRole")
+    public ResponseEntity<?> deleteRole(Principal principal, @Valid @RequestBody DeleteRoleRequest deleteRoleRequest) {
+        Set<Role> roles =tableRepository.findByName("Role").get().getRoles();
+        accessService.checkPermission(principal,roles);
+        return ResponseEntity.ok(roleService.deleteRole(deleteRoleRequest));
+    }
+
+    @GetMapping("/GetAllRoles")
+    public ResponseEntity<?> getAllRoles(Principal principal) {
+//        Set<Role> roles =tableRepository.findByName("Role").get().getRoles();
+//        accessService.checkPermission(principal,roles);
+        return ResponseEntity.ok(roleService.getAllRoles());
+    }
+
 }
