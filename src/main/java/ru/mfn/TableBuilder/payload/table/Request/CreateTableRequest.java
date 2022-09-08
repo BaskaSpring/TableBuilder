@@ -1,13 +1,13 @@
-package ru.mfn.TableBuilder.payload.role.request;
-
+package ru.mfn.TableBuilder.payload.table.Request;
 
 import lombok.*;
 import ru.mfn.TableBuilder.model.annotation.ValidName;
-import ru.mfn.TableBuilder.model.annotation.ValidNumberId;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
+
 
 @Data
 @Builder
@@ -15,15 +15,15 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @Getter
 @Setter
-public class EditRoleRequest {
+public class CreateTableRequest {
 
-    @NotNull
-    @ValidNumberId
-    private Long id;
 
     @NotBlank
     @Size(min = 3, max = 75)
     @ValidName
     private String name;
 
+    @Valid
+    @Size(min = 1)
+    private List<ColumnInfo> columnInfos;
 }

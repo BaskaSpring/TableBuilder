@@ -1,13 +1,7 @@
 package ru.mfn.TableBuilder.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import ru.mfn.TableBuilder.model.core.Table;
+import ru.mfn.TableBuilder.payload.table.Request.CreateTableRequest;
 
-import java.util.Optional;
-
-@Repository
-public interface TableRepository extends JpaRepository<Table,String> {
-
-    Optional<Table> findByName(String tableName);
+public interface TableRepository {
+    void create(CreateTableRequest createTableRequest);
 }

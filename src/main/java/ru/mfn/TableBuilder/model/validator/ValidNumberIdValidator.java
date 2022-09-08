@@ -1,7 +1,7 @@
 package ru.mfn.TableBuilder.model.validator;
 
 import lombok.SneakyThrows;
-import ru.mfn.TableBuilder.exception.InvalidNumberIdException;
+import ru.mfn.TableBuilder.payload.exception.InvalidNumberIdException;
 import ru.mfn.TableBuilder.model.annotation.ValidNumberId;
 import ru.mfn.TableBuilder.util.MatchingUtil;
 
@@ -20,7 +20,6 @@ public class ValidNumberIdValidator implements ConstraintValidator<ValidNumberId
         if(!id.toString().matches(MatchingUtil.ID_REGEX)) {
             throw new InvalidNumberIdException(context.getDefaultConstraintMessageTemplate() + ": " + id);
         }
-
         return true;
     }
 }

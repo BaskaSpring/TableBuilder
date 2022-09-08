@@ -3,14 +3,12 @@ package ru.mfn.TableBuilder.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.mfn.TableBuilder.exception.*;
 import ru.mfn.TableBuilder.model.auth.RefreshToken;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.model.auth.User;
@@ -22,10 +20,16 @@ import ru.mfn.TableBuilder.payload.auth.response.JwtResponse;
 import ru.mfn.TableBuilder.payload.auth.response.MessageResponse;
 import ru.mfn.TableBuilder.payload.auth.response.TokenRefreshResponse;
 import ru.mfn.TableBuilder.repository.*;
+import ru.mfn.TableBuilder.security.exception.EmailAlreadyUseException;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenExpired;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenNotDatabase;
 import ru.mfn.TableBuilder.security.jwt.JwtUtils;
 import ru.mfn.TableBuilder.security.services.RefreshTokenService;
 import ru.mfn.TableBuilder.security.services.UserDetailsImpl;
 import ru.mfn.TableBuilder.service.AuthService;
+import ru.mfn.TableBuilder.service.exception.RoleNotFoundException;
+import ru.mfn.TableBuilder.service.exception.UserNotActiveException;
+import ru.mfn.TableBuilder.service.exception.UserNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,8 +58,7 @@ public class AuthServiceImpl implements AuthService {
     RefreshTokenService refreshTokenService;
 
     @Override
-    @SneakyThrows
-    public String registerUser(SignUpRequest signUpRequest) {
+    public String registerUser(SignUpRequest signUpRequest) throws EmailAlreadyUseException, RoleNotFoundException {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             throw new EmailAlreadyUseException("Error: Username is already taken!");
         }
@@ -91,8 +94,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @SneakyThrows
-    public JwtResponse authenticateUser(LoginRequest loginRequest) {
+    public JwtResponse authenticateUser(LoginRequest loginRequest) throws UserNotFoundException, UserNotActiveException {
         Optional<User> optionalUser = userRepository.findByUsername(loginRequest.getUsername());
         if (optionalUser.isEmpty()){
             throw new UserNotFoundException("Error: User not found!");
@@ -113,8 +115,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    @SneakyThrows
-    public TokenRefreshResponse refreshToken(TokenRefreshRequest tokenRefreshRequest) {
+    public TokenRefreshResponse refreshToken(TokenRefreshRequest tokenRefreshRequest) throws RefreshTokenNotDatabase, RefreshTokenExpired {
         TokenRefreshResponse tokenRefreshResponse = new TokenRefreshResponse();
         Optional<RefreshToken> optionalRefreshToken = refreshTokenService.findByToken(tokenRefreshRequest.getRefreshToken());
         if (optionalRefreshToken.isEmpty()){

@@ -7,7 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.mfn.TableBuilder.exception.*;
+import ru.mfn.TableBuilder.payload.exception.InvalidNameException;
+import ru.mfn.TableBuilder.payload.exception.InvalidNumberIdException;
+import ru.mfn.TableBuilder.payload.exception.LengthStringNotValidException;
+import ru.mfn.TableBuilder.security.exception.EmailAlreadyUseException;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenExpired;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenNotDatabase;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenRandomError;
+import ru.mfn.TableBuilder.service.exception.*;
 
 @RestControllerAdvice
 @Slf4j
@@ -18,8 +25,8 @@ public class ControllerExceptionHandler {
         return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
     }
 
-    @ExceptionHandler(UsernameAlreadyUserException.class)
-    public ResponseEntity<ErrorMessage> usernameAlreadyException(UsernameAlreadyUserException ex) {
+    @ExceptionHandler(UsernameAlreadyUseException.class)
+    public ResponseEntity<ErrorMessage> usernameAlreadyException(UsernameAlreadyUseException ex) {
         return commonMessage(ex, HttpStatus.NOT_ACCEPTABLE);
     }
 
@@ -65,6 +72,21 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(InvalidNumberIdException.class)
     public ResponseEntity<ErrorMessage> invalidNumberIdException(InvalidNumberIdException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidNameException.class)
+    public ResponseEntity<ErrorMessage> invalidNameException(InvalidNameException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(LengthStringNotValidException.class)
+    public ResponseEntity<ErrorMessage> lengthStringNotValidException(LengthStringNotValidException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(TableNameAlreadyExistException.class)
+    public ResponseEntity<ErrorMessage> tableNameAlreadyExistException(TableNameAlreadyExistException ex) {
         return commonMessage(ex, HttpStatus.FORBIDDEN);
     }
 

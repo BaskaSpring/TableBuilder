@@ -11,5 +11,4 @@ import lombok.*;
 public class ErrorMessage {
     String status;
     String message;
-
 }

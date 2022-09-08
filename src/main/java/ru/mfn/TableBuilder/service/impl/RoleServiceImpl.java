@@ -3,11 +3,12 @@ package ru.mfn.TableBuilder.service.impl;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.mfn.TableBuilder.exception.RoleAlreadyExistException;
-import ru.mfn.TableBuilder.exception.RoleNotFoundException;
+import ru.mfn.TableBuilder.service.exception.RoleAlreadyExistException;
+import ru.mfn.TableBuilder.service.exception.RoleNotFoundException;
 import ru.mfn.TableBuilder.model.auth.ERole;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.payload.role.request.AddRoleRequest;
+import ru.mfn.TableBuilder.payload.role.request.CheckRoleRequest;
 import ru.mfn.TableBuilder.payload.role.request.DeleteRoleRequest;
 import ru.mfn.TableBuilder.payload.role.request.EditRoleRequest;
 import ru.mfn.TableBuilder.payload.role.response.AddRoleResponse;
@@ -27,6 +28,16 @@ public class RoleServiceImpl implements RoleService {
     @Autowired
     RoleRepository roleRepository;
 
+
+    @Override
+    public Boolean checkRole(CheckRoleRequest checkRoleRequest) {
+        Optional<Role> roleOptional = roleRepository.findByName(checkRoleRequest.getName().toUpperCase());
+        if (roleOptional.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public GetAllRoleResponse getAllRoles() {
         GetAllRoleResponse response = new GetAllRoleResponse();
@@ -35,8 +46,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @SneakyThrows
-    public DeleteRoleResponse deleteRole(DeleteRoleRequest deleteRoleRequest) {
+    public DeleteRoleResponse deleteRole(DeleteRoleRequest deleteRoleRequest) throws RoleNotFoundException {
         Optional<Role> roleOptional = roleRepository.findById(deleteRoleRequest.getId());
         if (roleOptional.isEmpty()) {
             throw new RoleNotFoundException("Error: Role not found!");
@@ -50,15 +60,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @SneakyThrows
-    public AddRoleResponse addRole(AddRoleRequest addRoleRequest) {
+    public AddRoleResponse addRole(AddRoleRequest addRoleRequest) throws RoleAlreadyExistException {
         Optional<Role> optionalRole = roleRepository.findByName(addRoleRequest.getName());
         if (optionalRole.isPresent()){
             throw new RoleAlreadyExistException("Error: Role already exist!");
         }
         Role role  = new Role();
-        role.setName(addRoleRequest.getName());
-        role.setERole(ERole.WRITE);
+        role.setName(addRoleRequest.getName().toUpperCase());
+        role.setERole(ERole.USER);
         role.setEnabled(true);
         role = roleRepository.save(role);
         AddRoleResponse response = new AddRoleResponse();
@@ -68,9 +77,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    @SneakyThrows
-    public EditRoleResponse editRole(EditRoleRequest editRoleRequest) {
-        Optional<Role> optionalRole = roleRepository.findByName(editRoleRequest.getName());
+    public EditRoleResponse editRole(EditRoleRequest editRoleRequest) throws RoleAlreadyExistException, RoleNotFoundException {
+        Optional<Role> optionalRole = roleRepository.findByName(editRoleRequest.getName().toUpperCase());
         if (optionalRole.isPresent()){
             throw new RoleAlreadyExistException("Error: Role already exist!");
         }
@@ -79,7 +87,7 @@ public class RoleServiceImpl implements RoleService {
             throw new RoleNotFoundException("Error: Role not found!");
         }
         Role role = roleOptional.get();
-        role.setName(editRoleRequest.getName());
+        role.setName(editRoleRequest.getName().toUpperCase());
         role = roleRepository.save(role);
         EditRoleResponse response = new EditRoleResponse();
         response.setId(role.getId());

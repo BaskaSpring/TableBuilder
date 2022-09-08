@@ -4,8 +4,8 @@ package ru.mfn.TableBuilder.service.impl;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.mfn.TableBuilder.exception.AccessDeniedException;
-import ru.mfn.TableBuilder.exception.UserNotFoundException;
+import ru.mfn.TableBuilder.service.exception.AccessDeniedException;
+import ru.mfn.TableBuilder.service.exception.UserNotFoundException;
 import ru.mfn.TableBuilder.model.auth.ERole;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.model.auth.User;
@@ -27,8 +27,7 @@ public class AccessServiceImpl implements AccessService {
     RoleRepository roleRepository;
 
     @Override
-    @SneakyThrows
-    public User getUserByPrincipal(Principal principal) {
+    public User getUserByPrincipal(Principal principal) throws UserNotFoundException {
         Optional<User> userOptional = userRepository.findByUsername(principal.getName());
         if (userOptional.isEmpty()){
             throw new UserNotFoundException("Error: User not found!");
@@ -47,8 +46,7 @@ public class AccessServiceImpl implements AccessService {
     }
 
     @Override
-    @SneakyThrows
-    public void checkPermission(Principal principal, Set<Role> roles) {
+    public void checkPermission(Principal principal, Set<Role> roles) throws AccessDeniedException, UserNotFoundException {
         User user = getUserByPrincipal(principal);
         if (checkAdmin(user)) {
             return;

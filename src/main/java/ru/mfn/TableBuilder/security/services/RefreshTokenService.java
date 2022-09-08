@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.mfn.TableBuilder.exception.RefreshTokenRandomError;
+import ru.mfn.TableBuilder.security.exception.RefreshTokenRandomError;
 import ru.mfn.TableBuilder.model.auth.RefreshToken;
 import ru.mfn.TableBuilder.repository.RefreshTokenRepository;
 import ru.mfn.TableBuilder.repository.UserRepository;

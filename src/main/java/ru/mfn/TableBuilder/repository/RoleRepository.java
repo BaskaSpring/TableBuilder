@@ -12,6 +12,8 @@ import ru.mfn.TableBuilder.model.auth.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+
+
   Optional<Role> findByName(String name);
 
   Optional<Role> findById(Long id);
