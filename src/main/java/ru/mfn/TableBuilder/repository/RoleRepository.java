@@ -21,8 +21,12 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
   @Query("select x from Role as x where x.enabled=true and x.eRole<>'ADMIN'")
   List<Role> findAll();
 
-  @Query("select x from Role as x where x.eRole=:eRole")
+  @Query("select x from Role as x where x.enabled=true and x.eRole<>'ADMIN' and x.eRole<>'MODERATOR'")
+  List<Role> findAllWithoutAdminAndModerator();
+
+  @Query("select x from Role as x where x.eRole=:eRole and x.enabled=true")
   List<Role> findByRole(ERole eRole);
+
 
 
 }

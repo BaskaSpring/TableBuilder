@@ -12,10 +12,12 @@ public interface AccessService {
 
     void checkPermission(Principal principal, Set<Role> roles) throws AccessDeniedException, UserNotFoundException;
 
-    Boolean checkAdmin(User user);
-
     User getUserByPrincipal(Principal principal) throws UserNotFoundException;
 
     Boolean checkAccess(User user,Set<Role> roles);
+
+    Boolean checkAdministrator(Principal principal) throws UserNotFoundException;
+
+    void checkPermissionEditTable(Principal principal) throws AccessDeniedException, UserNotFoundException;
 
 }

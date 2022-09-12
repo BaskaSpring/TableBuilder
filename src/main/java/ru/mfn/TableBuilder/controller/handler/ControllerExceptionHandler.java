@@ -90,6 +90,11 @@ public class ControllerExceptionHandler {
         return commonMessage(ex, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(TableNotFoundException.class)
+    public ResponseEntity<ErrorMessage> tableNotFoundException(TableNotFoundException ex) {
+        return commonMessage(ex, HttpStatus.FORBIDDEN);
+    }
+
     private ResponseEntity<ErrorMessage> commonMessage(Exception ex, HttpStatus httpStatus) {
         ErrorMessage errorMessage = new ErrorMessage();
         errorMessage.message = ex.getMessage();

@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import ru.mfn.TableBuilder.model.annotation.ValidName;
 import ru.mfn.TableBuilder.model.auth.Role;
+import ru.mfn.TableBuilder.model.auth.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -28,11 +29,15 @@ public class Table {
 
     private Boolean enabled;
 
+    private Boolean division;
+
     private Boolean systemTable;
 
-    @ValidName(message = "Invalid table name")
-    @NotBlank(message = "table name cant be empty")
     private String tableName;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User owner;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(	name = "table_roles",

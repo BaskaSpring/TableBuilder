@@ -24,7 +24,6 @@ public class Role {
     @Column(length = 75)
     private String name;
 
-
     @JsonIgnore
     @Enumerated(EnumType.STRING)
     @Column(length = 20)

@@ -1,7 +1,5 @@
 package ru.mfn.TableBuilder.service.impl;
 
-
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.mfn.TableBuilder.service.exception.AccessDeniedException;
@@ -14,6 +12,8 @@ import ru.mfn.TableBuilder.repository.UserRepository;
 import ru.mfn.TableBuilder.service.AccessService;
 
 import java.security.Principal;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,9 +40,14 @@ public class AccessServiceImpl implements AccessService {
         return user.getRoles().stream().anyMatch(roles::contains);
     }
 
-    @Override
+
     public Boolean checkAdmin(User user) {
         return user.getRoles().stream().anyMatch(roleRepository.findByRole(ERole.ADMIN)::contains);
+    }
+
+    @Override
+    public Boolean checkAdministrator(Principal principal) throws UserNotFoundException {
+        return checkAdmin(getUserByPrincipal(principal));
     }
 
     @Override
@@ -52,6 +57,20 @@ public class AccessServiceImpl implements AccessService {
             return;
         }
         if (checkAccess(user,roles)) {
+            return;
+        }
+        throw new AccessDeniedException("Error: Access denied!");
+    }
+
+
+    @Override
+    public void checkPermissionEditTable(Principal principal) throws AccessDeniedException, UserNotFoundException {
+        User user = getUserByPrincipal(principal);
+        if (checkAdmin(user)) {
+            return;
+        }
+        List<Role> roles = roleRepository.findByRole(ERole.MODERATOR);
+        if (checkAccess(user,new HashSet<>(roles))) {
             return;
         }
         throw new AccessDeniedException("Error: Access denied!");

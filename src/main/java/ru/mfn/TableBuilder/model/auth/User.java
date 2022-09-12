@@ -3,6 +3,7 @@ package ru.mfn.TableBuilder.model.auth;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import ru.mfn.TableBuilder.model.core.Division;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -31,7 +32,7 @@ public class User {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @Column(name =  "id", columnDefinition = "VARCHAR(50)",updatable = false,nullable = false)
+    @Column(name =  "id", columnDefinition = "VARCHAR(40)",updatable = false,nullable = false)
     private String id;
 
     @NotBlank
@@ -39,6 +40,10 @@ public class User {
     private String username;
 
     private Boolean enabled = true;
+
+    @OneToOne
+    @JoinColumn(name = "division_id", referencedColumnName = "id")
+    private Division division;
 
     @NotBlank
     @Size(max = 50)
