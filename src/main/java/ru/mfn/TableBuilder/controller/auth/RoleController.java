@@ -1,7 +1,5 @@
 package ru.mfn.TableBuilder.controller.auth;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mfn.TableBuilder.model.auth.Role;
@@ -26,14 +24,20 @@ import java.util.Set;
 @RequestMapping("/api/role/1.0/")
 public class RoleController {
 
-    @Autowired
+    final
     RoleServiceImpl roleService;
 
-    @Autowired
+    final
     AccessServiceImpl accessService;
 
-    @Autowired
+    final
     SupportTableRepository supportTableRepository;
+
+    public RoleController(RoleServiceImpl roleService, AccessServiceImpl accessService, SupportTableRepository supportTableRepository) {
+        this.roleService = roleService;
+        this.accessService = accessService;
+        this.supportTableRepository = supportTableRepository;
+    }
 
     @PostMapping("/AddRole")
     public ResponseEntity<?> addRole(Principal principal, @Valid @RequestBody AddRoleRequest addRoleRequest)

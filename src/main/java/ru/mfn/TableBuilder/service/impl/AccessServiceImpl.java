@@ -20,11 +20,16 @@ import java.util.Set;
 @Service
 public class AccessServiceImpl implements AccessService {
 
-    @Autowired
+    final
     UserRepository userRepository;
 
-    @Autowired
+    final
     RoleRepository roleRepository;
+
+    public AccessServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
 
     @Override
     public User getUserByPrincipal(Principal principal) throws UserNotFoundException {

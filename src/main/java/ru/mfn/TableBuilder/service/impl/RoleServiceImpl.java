@@ -1,6 +1,5 @@
 package ru.mfn.TableBuilder.service.impl;
 
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.mfn.TableBuilder.service.exception.RoleAlreadyExistException;
@@ -25,8 +24,12 @@ import java.util.Optional;
 public class RoleServiceImpl implements RoleService {
 
 
-    @Autowired
+    final
     RoleRepository roleRepository;
+
+    public RoleServiceImpl(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
 
     @Override

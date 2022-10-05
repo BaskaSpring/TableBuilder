@@ -23,17 +23,24 @@ import java.util.*;
 @Service
 public class TableServiceImpl implements TableService {
 
-    @Autowired
+    final
     TableRepositoryImpl tableRepository;
 
-    @Autowired
+    final
     RoleRepository roleRepository;
 
-    @Autowired
+    final
     SupportTableRepository supportTableRepository;
 
-    @Autowired
+    final
     AccessServiceImpl accessService;
+
+    public TableServiceImpl(TableRepositoryImpl tableRepository, RoleRepository roleRepository, SupportTableRepository supportTableRepository, AccessServiceImpl accessService) {
+        this.tableRepository = tableRepository;
+        this.roleRepository = roleRepository;
+        this.supportTableRepository = supportTableRepository;
+        this.accessService = accessService;
+    }
 
     private Boolean checkTableName(String name){
         Optional<Table> tableOptional = supportTableRepository.findByName(name.toUpperCase());

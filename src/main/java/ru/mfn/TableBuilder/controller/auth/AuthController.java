@@ -1,7 +1,6 @@
 package ru.mfn.TableBuilder.controller.auth;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.mfn.TableBuilder.payload.auth.request.LogOutRequest;
@@ -25,8 +24,12 @@ import javax.validation.Valid;
 @RequestMapping("/api/auth/1.0/")
 public class AuthController {
 
-    @Autowired
+    final
     AuthServiceImpl authService;
+
+    public AuthController(AuthServiceImpl authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/SignUp")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest)
@@ -41,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/RefreshToken")
-    public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest tokenRefreshRequest)
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest tokenRefreshRequest)
             throws RefreshTokenExpired, RefreshTokenNotDatabase {
         return ResponseEntity.ok(authService.refreshToken(tokenRefreshRequest));
     }

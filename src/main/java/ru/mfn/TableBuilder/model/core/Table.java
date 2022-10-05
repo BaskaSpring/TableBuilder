@@ -2,13 +2,10 @@ package ru.mfn.TableBuilder.model.core;
 
 
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
-import ru.mfn.TableBuilder.model.annotation.ValidName;
 import ru.mfn.TableBuilder.model.auth.Role;
 import ru.mfn.TableBuilder.model.auth.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
